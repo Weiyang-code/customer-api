@@ -1,6 +1,14 @@
 {
-    "Customers":[
-    {"ID": 1,
-    "Name": "Wei Yang",
-    "Gender": "Male"}
-  ]}
+  "Customers": [
+    {
+      "ID": 1,
+      "Name": "Wei Yang",
+      "Gender": "Male"
+    },
+    {
+      "ID": 2,
+      "Name": "John",
+      "Gender": "Male"
+    }
+  ]
+}
