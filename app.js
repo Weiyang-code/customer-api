@@ -7,7 +7,8 @@ app.use(express.json());
 const customers = [
   {
     ID: 1,
-    Name: "Wei Yang"
+    Name: "Wei Yang",
+    Gender: "Male"
   },
 ];
 
@@ -29,9 +30,19 @@ app.post("/api/customers", (req, res) => {
   const customer = {
     ID: customers.length + 1,
     Name: req.body.Name,
+    Gender: req.body.Gender
   };
   customers.push(customer);
   res.send(customer);
 });
+
+app.put("/api/customers/:ID",(req,res) => {
+    const customer = customers.find(i => i.ID === parseInt(req.params.ID))
+    if (!customer) res.status(404).send("The customer does not exist")
+
+    customer.Name = req.body.Name;
+    customer.Gender = req.body.Gender;
+    res.send(customer);
+})
 
 app.listen(3000, () => console.log(`Server running on port:3000`));
