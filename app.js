@@ -8,7 +8,7 @@ const customers = [
   {
     ID: 1,
     Name: "Wei Yang",
-    Gender: "Male"
+    Gender: "Male",
   },
 ];
 
@@ -21,28 +21,37 @@ app.get("/api/customers", (req, res) => {
 });
 
 app.get("/api/customers/:ID", (req, res) => {
-    const customer = customers.find(i => i.ID === parseInt(req.params.ID))
-    if (!customer) res.status(404).send("The customer does not exist")
-    res.send(customer);
-  });
+  const customer = customers.find((i) => i.ID === parseInt(req.params.ID));
+  if (!customer) res.status(404).send("The customer does not exist");
+  res.send(customer);
+});
 
 app.post("/api/customers", (req, res) => {
   const customer = {
     ID: customers.length + 1,
     Name: req.body.Name,
-    Gender: req.body.Gender
+    Gender: req.body.Gender,
   };
   customers.push(customer);
   res.send(customer);
 });
 
-app.put("/api/customers/:ID",(req,res) => {
-    const customer = customers.find(i => i.ID === parseInt(req.params.ID))
-    if (!customer) res.status(404).send("The customer does not exist")
-    const {Name,Gender} = req.body;
-    if(Name) customer.Name = req.body.Name;
-    if(Gender) customer.Gender = req.body.Gender;
-    res.send(customer);
-})
+app.put("/api/customers/:ID", (req, res) => {
+  const customer = customers.find((i) => i.ID === parseInt(req.params.ID));
+  if (!customer) res.status(404).send("The customer does not exist");
+  const { Name, Gender } = req.body;
+  if (Name) customer.Name = req.body.Name;
+  if (Gender) customer.Gender = req.body.Gender;
+  res.send(customer);
+});
+
+app.delete("/api/customers/:ID", (req, res) => {
+  const customer = customers.find((i) => i.ID === parseInt(req.params.ID));
+  if (!customer) res.status(404).send("The customer does not exist");
+
+  const index = customers.indexOf(customer);
+  customers.splice(index, 1);
+  res.send(customer);
+});
 
 app.listen(3000, () => console.log(`Server running on port:3000`));
