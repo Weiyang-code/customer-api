@@ -6,14 +6,11 @@ const fs = require("fs");
 
 app.use(express.json());
 
-function findCustomerIndex(Customers, ID) {
-  return Customers.findIndex((customer) => customer.ID === ID);
-}
-
 app.get("/", (req, res) => {
   res.send("Testing...");
 });
 
+// Retrieving all customer details
 app.get("/api/customers", (req, res) => {
   fs.readFile("customers.json", "utf8", (err, data) => {
     if (err) {
@@ -25,6 +22,7 @@ app.get("/api/customers", (req, res) => {
   });
 });
 
+// Retrieving specific customer details
 app.get("/api/customers/:ID", (req, res) => {
   const customerID = parseInt(req.params.ID);
 
@@ -52,6 +50,7 @@ app.get("/api/customers/:ID", (req, res) => {
   });
 });
 
+//Registering new customers
 app.post("/api/customers", (req, res) => {
   try {
     const newCustomer = req.body;
@@ -95,6 +94,7 @@ app.post("/api/customers", (req, res) => {
   }
 });
 
+//Updating customer details 
 app.put("/api/customers/:ID", (req, res) => {
   const customerID = parseInt(req.params.ID);
   const updatedCustomer = req.body;
@@ -137,6 +137,7 @@ app.put("/api/customers/:ID", (req, res) => {
   });
 });
 
+//Deleting customer details
 app.delete("/api/customers/:ID", (req, res) => {
   const customerID = parseInt(req.params.ID);
 
