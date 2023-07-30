@@ -6,6 +6,10 @@ const fs = require("fs");
 
 app.use(express.json());
 
+function findCustomerIndex(Customers, ID) {
+  return Customers.findIndex((customer) => customer.ID === ID);
+}
+
 app.get("/", (req, res) => {
   res.send("Testing...");
 });
@@ -53,9 +57,7 @@ app.post("/api/customers", (req, res) => {
     const newCustomer = req.body;
 
     if (!newCustomer || !newCustomer.Name || !newCustomer.Gender) {
-      res
-        .status(400)
-        .json({ error: "Invalid data format. Name and gender is required." });
+      res.status(400).json({ error: "Invalid data format. Name and gender is required." });
     }
 
     fs.readFile("customers.json", "utf8", (err, data) => {
@@ -66,8 +68,10 @@ app.post("/api/customers", (req, res) => {
       const customerData = JSON.parse(data);
       const Customers = customerData.Customers;
 
+      const maxID = Customers.reduce((acc, item) => Math.max(acc, item.ID), 0);
+
       const newCustomerData = {
-        ID: Customers.length + 1,
+        ID: maxID + 1,
         Name: newCustomer.Name,
         Gender: newCustomer.Gender,
       };
@@ -79,10 +83,10 @@ app.post("/api/customers", (req, res) => {
         JSON.stringify(customerData, null, 2),
         (err) => {
           if (err) {
-            res.status(500).json({ error: "Error writing to the JSON file." });
+            return res.status(500).json({ error: "Error writing to the JSON file." });
           }
 
-          res.json(newCustomerData);
+          return res.json(newCustomerData);
         }
       );
     });
@@ -92,21 +96,79 @@ app.post("/api/customers", (req, res) => {
 });
 
 app.put("/api/customers/:ID", (req, res) => {
-  const customer = customers.find((i) => i.ID === parseInt(req.params.ID));
-  if (!customer) res.status(404).send("The customer does not exist");
-  const { Name, Gender } = req.body;
-  if (Name) customer.Name = req.body.Name;
-  if (Gender) customer.Gender = req.body.Gender;
-  res.send(customer);
+  const customerID = parseInt(req.params.ID);
+  const updatedCustomer = req.body;
+
+  if (isNaN(customerID)) {
+    res.status(400).json({ error: "Invalid data ID provided." });
+  }
+
+  fs.readFile("customers.json", "utf8", (err, data) => {
+    if (err) {
+      res.status(500).json({ error: "Error reading the JSON file." });
+    }
+
+    const customerData = JSON.parse(data);
+    const Customers = customerData.Customers;
+
+    const foundCustomer = Customers.find(
+      (customer) => customer.ID === customerID
+    );
+
+    if (!foundCustomer) {
+      res.status(404).json({ error: "Customer does not exist." });
+    }
+
+    if (updatedCustomer.Name) {
+      foundCustomer.Name = updatedCustomer.Name;
+    }
+
+    if (updatedCustomer.Gender) {
+      foundCustomer.Gender = updatedCustomer.Gender;
+    }
+    
+    fs.writeFile('customers.json', JSON.stringify(customerData, null, 2), err => {
+      if (err) {
+        return res.status(500).json({ error: 'Error writing to the JSON file.' });
+      }
+
+      return res.json(foundCustomer);
+    });
+  });
 });
 
 app.delete("/api/customers/:ID", (req, res) => {
-  const customer = customers.find((i) => i.ID === parseInt(req.params.ID));
-  if (!customer) res.status(404).send("The customer does not exist");
+  const customerID = parseInt(req.params.ID);
 
-  const index = customers.indexOf(customer);
-  customers.splice(index, 1);
-  res.send(customer);
+  if (isNaN(customerID)) {
+    res.status(400).json({ error: "Invalid data ID provided."});
+  }
+
+  fs.readFile("customers.json", "utf8", (err, data) => {
+    if (err) {
+      res.status(500).json({ error: "Error reading the JSON file."});
+    }
+
+    const customerData = JSON.parse(data);
+    const Customers = customerData.Customers;
+
+    const foundCustomer = Customers.find(customer => customer.ID === customerID);
+
+    if (!foundCustomer) {
+      return res.status(404).json({ error: "Customer does not exist."});
+    }
+
+    const index = Customers.indexOf(foundCustomer);
+    const deletedCustomer = Customers.splice(index, 1);
+
+    fs.writeFile("customers.json", JSON.stringify(customerData, null, 2), err => {
+      if (err) {
+        return res.status(500).json({ error: "Error writing to the JSON file."});
+      }
+
+      return res.json(deletedCustomer);
+    });
+  });
 });
 
 app.listen(3000, () => console.log(`Server running on port:3000`));
