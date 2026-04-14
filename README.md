@@ -1,6 +1,6 @@
 # customer-api
 
-Rest API endpoint using nodejs / python
+Rest API endpoint using nodejs
 
 - Register new customer
 - View customer details
